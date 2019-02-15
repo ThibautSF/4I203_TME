@@ -1,0 +1,22 @@
+#1e Etape: Démarrage
+
+Q1: import de sys ?
+
+#2e Etape: Créer une classe MainWindow
+
+Q2: Création de QApplication avant la création de widget puis appel de la méthode exec() de l'objet QApplication
+
+	app = QApplication(args)
+	<code>
+	app.exec()
+
+#3e Etape: rajouter des widgets à MainWindow
+
+
+#4e Etape: définir et connecter les slots
+
+Q4: On connecte à l'attribut triggered (utilisation de la méthode connect) de l'action la méthode de la classe adéquate
+
+	actionOpen.triggered.connect(self.open)
+
+
