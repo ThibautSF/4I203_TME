@@ -8,7 +8,7 @@ class MainWindow(QMainWindow):
 	
 	###############
 	def __init__(self, *args, **kwargs):
-		#Appel constructeur parent
+		#Parent constructor
 		QMainWindow.__init__(self, *args, **kwargs)
 		self.resize(300,300)
 		
@@ -16,6 +16,7 @@ class MainWindow(QMainWindow):
 		menu = self.menuBar()
 		fileM = menu.addMenu('Fichier')
 		
+		## Action open
 		openAct = QAction(QIcon("open.png"), 'Open...', self )
 		openAct.setShortcut( QKeySequence('Ctrl+O' ) )
 		openAct.setToolTip('Open')
@@ -23,6 +24,7 @@ class MainWindow(QMainWindow):
 		openAct.triggered.connect(self.open)
 		fileM.addAction(openAct)
 		
+		## Action save
 		saveAct = QAction(QIcon("save.png"), 'Save', self )
 		saveAct.setShortcut( QKeySequence('Ctrl+S' ) )
 		saveAct.setToolTip('Save')
@@ -30,6 +32,7 @@ class MainWindow(QMainWindow):
 		saveAct.triggered.connect(self.save)
 		fileM.addAction(saveAct)
 		
+		## Action quit
 		quitAct = QAction(QIcon("quit.png"), 'Quit', self )
 		quitAct.setShortcut( QKeySequence('Ctrl+Q' ) )
 		quitAct.setToolTip('Quit')
@@ -37,14 +40,14 @@ class MainWindow(QMainWindow):
 		quitAct.triggered.connect(self.quit)
 		fileM.addAction(quitAct)
 		
-		#Central
+		#Central Widget
 		textEdit = QTextEdit(self)
 		self.setCentralWidget(textEdit)
 		
 		#StatusBar
 		status = self.statusBar()
 	
-	###############
+	# Open a file and import it
 	def open(self):
 		filename = QFileDialog.getOpenFileName(self, "Open text", "", "")
 		
@@ -66,7 +69,7 @@ class MainWindow(QMainWindow):
 			file.close()
 		
 	
-	###############
+	# Save work in a targeted file
 	def save(self):
 		filename = QFileDialog.getSaveFileName(self, "Save file", "", "")
 		
@@ -82,15 +85,28 @@ class MainWindow(QMainWindow):
 			fileStream << textEdit.toHtml()
 			
 			file.close()
-		
+	
+	# Overwrite user exit event
+	def closeEvent(self, event):
+		event.ignore()
+		self.quit()
 
-	###############
+	# App exit function
 	def quit(self):
-		print("Quit")
+		dialogQuit = QMessageBox()
+		dialogQuit.setIcon(QMessageBox.Warning)
+		dialogQuit.setWindowTitle("Warning exit")
+		dialogQuit.setText("You are going to exit the application !")
+		dialogQuit.setInformativeText("Make sure you saved your work !")
+		dialogQuit.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+		
+		retval = dialogQuit.exec()
+		#Exit app if "OK"
+		if retval == QMessageBox.Ok:
+			sys.exit()
 
 
 def main(args):
-	#print("Hello World")
 	app = QApplication(args)
 	win = MainWindow()
 	win.show()

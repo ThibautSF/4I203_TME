@@ -19,4 +19,12 @@ Q4: On connecte à l'attribut triggered (utilisation de la méthode connect) de 
 
 	actionOpen.triggered.connect(self.open)
 
+#5e Etape: ouvrir une boîte de dialogue pour sélectionner un fichier
 
+#6e Etape: ouvrir / sauver une page HTML
+
+Q6: Pas eu de soucis d'execution du code
+
+#7e Etape: ouvrir une boîte de dialogue pour demander confirmation
+
+#8e Etape: demander confirmation dans tous les cas
