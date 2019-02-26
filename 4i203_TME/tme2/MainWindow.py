@@ -2,8 +2,8 @@ import sys
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
-from Canvas import *
-import resources
+from tme2.Canvas import *
+import tme2.resources
 
 class MainWindow(QMainWindow):
 
@@ -25,18 +25,29 @@ class MainWindow(QMainWindow):
         fileToolBar.addAction( actQuit )
 
         colorMenu = bar.addMenu("Color")
-        actPen = fileMenu.addAction(QIcon(":/icons/pen.png"), "&Pen color", self.pen_color, QKeySequence("Ctrl+P"))
-        actBrush = fileMenu.addAction(QIcon(":/icons/brush.png"), "&Brush color", self.brush_color, QKeySequence("Ctrl+B"))
+        actPen = colorMenu.addAction(QIcon(":/icons/pen.png"), "&Pen color", self.pen_color, QKeySequence("Ctrl+P"))
+        actBrush = colorMenu.addAction(QIcon(":/icons/brush.png"), "&Brush color", self.brush_color, QKeySequence("Ctrl+B"))
 
         colorToolBar = QToolBar("Color")
         self.addToolBar( colorToolBar )
         colorToolBar.addAction( actPen )
         colorToolBar.addAction( actBrush )
 
+        editMenu = bar.addMenu("Edit")
+        actUndo = editMenu.addAction(QIcon(), "&Undo", self.undo, QKeySequence("Ctrl+Z"))
+        actDeleteAll = editMenu.addAction(QIcon(), "&Delete All", self.deleteAll)
+
+        '''
+        editToolBar = QToolBar("Edit")
+        self.addToolBar(editToolBar)
+        editToolBar.addAction(actUndo)
+        editToolBar.addAction(actDeleteAll)
+        '''
+
         shapeMenu = bar.addMenu("Shape")
-        actRectangle = fileMenu.addAction(QIcon(":/icons/rectangle.png"), "&Rectangle", self.rectangle )
-        actEllipse = fileMenu.addAction(QIcon(":/icons/ellipse.png"), "&Ellipse", self.ellipse)
-        actFree = fileMenu.addAction(QIcon(":/icons/free.png"), "&Free drawing", self.free_drawing)
+        actRectangle = shapeMenu.addAction(QIcon(":/icons/rectangle.png"), "&Rectangle", self.rectangle )
+        actEllipse = shapeMenu.addAction(QIcon(":/icons/ellipse.png"), "&Ellipse", self.ellipse)
+        actFree = shapeMenu.addAction(QIcon(":/icons/free.png"), "&Free drawing", self.free_drawing)
 
         shapeToolBar = QToolBar("Shape")
         self.addToolBar( shapeToolBar )
@@ -60,44 +71,57 @@ class MainWindow(QMainWindow):
         #navToolBar.addAction( actZoomIn )
         #navToolBar.addAction( actZoomOut )
 
+        #Définition layout vertical : canvas + text
+        self.container = QWidget(self)
+        vLayout = QVBoxLayout( self.container )
+        self.container.setLayout( vLayout )
+        self.textEdit = QTextEdit( self.container )
+        self.textEdit.setMaximumHeight( 50 )
+        self.canvas = Canvas( self.container )
+        vLayout.addWidget( self.canvas )
+        vLayout.addWidget( self.textEdit )
+        self.setCentralWidget( self.container )
 
-        # self.container = QWidget(self)
-        # vLayout = QVBoxLayout( self.container )
-        # self.container.setLayout( vLayout )
-        # self.textEdit = QTextEdit( self.container )
-        # self.textEdit.setMaximumHeight( 50 )
-        # self.canvas = Canvas( self.container )
-        # vLayout.addWidget( self.canvas )
-        # vLayout.addWidget( self.textEdit )
-        # self.setCentralWidget( self.container )
-
-        self.textEdit = QTextEdit( self )
-        self.setCentralWidget(self.textEdit)
+        #self.textEdit = QTextEdit( self )
+        #self.setCentralWidget(self.textEdit)
 
 
     ##############
     def pen_color(self):
+        dialog = QColorDialog()
+        color = dialog.getColor(self.canvas.penColor)
+        if color.isValid():
+            self.canvas.setPenColor(color)
         self.log_action("choose pen color")
 
     def brush_color(self):
+        dialog = QColorDialog()
+        color = dialog.getColor(self.canvas.brushColor)
+        if color.isValid():
+            self.canvas.setBrushColor(color)
         self.log_action("choose brush color")
 
     def rectangle(self):
+        self.canvas.setDrawMode("rectangle")
         self.log_action("Shape mode: rectangle")
 
     def ellipse(self):
+        self.canvas.setDrawMode("ellipse")
         self.log_action("Shape Mode: circle")
 
     def free_drawing(self):
         self.log_action("Shape mode: free drawing")
 
     def move(self):
+        self.canvas.setMode("move")
         self.log_action("Mode: move")
 
     def draw(self):
+        self.canvas.setMode("draw")
         self.log_action("Mode: draw")
 
     def select(self):
+        self.canvas.setMode("select")
         self.log_action("Mode: select")
 
 
@@ -127,6 +151,20 @@ class MainWindow(QMainWindow):
         box.setIcon(QMessageBox.Question)
         if b == QMessageBox.Yes:
             sys.exit()
+
+    def undo(self):
+        self.canvas.removeLast()
+
+    def deleteAll(self):
+        dialogQuit = QMessageBox()
+        dialogQuit.setIcon(QMessageBox.Warning)
+        dialogQuit.setWindowTitle("Warning delete")
+        dialogQuit.setText("You are going to erase your draw !")
+        dialogQuit.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+        
+        retval = dialogQuit.exec()
+        if retval == QMessageBox.Ok:
+            self.canvas.removeAll()
 
     def closeEvent(self, event):
         #event.ignore()
