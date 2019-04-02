@@ -47,7 +47,7 @@ class Canvas(QWidget):
         
         self.timer = QTimer()
         self.timer.timeout.connect(self.timeout)
-        self.timer.setInterval(100)
+        self.timer.setInterval(50)
         
         
 
@@ -92,11 +92,28 @@ class Canvas(QWidget):
         # feedback = path * (1-count)/100 + termination * count/100
         path = qpolygonF_to_points(self.path)
         termination = qpolygonF_to_points(self.termination)
-        for count in linspace(self.counter, nb_step, 99-self.counter):
-            self.feedback = path * (1-count)/100 + termination * count/100
+        feedback = qpolygonF_to_points(self.feedback)
+        i=0
+        
+        print("Step :"+str(self.counter))
+        print(feedback)
+        
+        for p,t in zip(path,termination):
+            f = [0., 0.]
+            f[0] = p[0] * (nb_step-self.counter)/nb_step + t[0] * self.counter/nb_step
+            f[1] = p[1] * (nb_step-self.counter)/nb_step + t[1] * self.counter/nb_step
+            feedback[i] = f
+            i+=1
+        
+        print(feedback)
+        
+        self.feedback = points_to_qpolygonF(feedback)
 
         self.counter += 1
         self.repaint()
+        if self.counter == nb_step:
+            self.timer.stop()
+            self.animation = False
 
 
     ############################
@@ -152,13 +169,13 @@ class Canvas(QWidget):
         #todo 11
         #self.path = ...
         #self.feedback = self.path
-        #self.path = points_to_qpolygonF(self.oneDollar.resampled_gesture)
-        #self.feedback = qpolygonF_to_points(self.path)
+        self.path = points_to_qpolygonF(self.oneDollar.resampled_gesture)
+        self.feedback = points_to_qpolygonF(self.oneDollar.resampled_gesture)
         
 
         #create a timer
         self.counter = 0
-        #self.timer.start()
+        self.timer.start()
 
 
     ##############################
@@ -180,6 +197,9 @@ class Canvas(QWidget):
 
     ##############################
     def mousePressEvent(self,e):
+        self.timer.stop()
+        self.animation = False
+        
         self.clear()
         self.path.append( e.pos() )
         self.repaint()
