@@ -93,19 +93,14 @@ class Canvas(QWidget):
         path = qpolygonF_to_points(self.path)
         termination = qpolygonF_to_points(self.termination)
         feedback = qpolygonF_to_points(self.feedback)
+        
         i=0
-        
-        print("Step :"+str(self.counter))
-        print(feedback)
-        
         for p,t in zip(path,termination):
             f = [0., 0.]
             f[0] = p[0] * (nb_step-self.counter)/nb_step + t[0] * self.counter/nb_step
             f[1] = p[1] * (nb_step-self.counter)/nb_step + t[1] * self.counter/nb_step
             feedback[i] = f
             i+=1
-        
-        print(feedback)
         
         self.feedback = points_to_qpolygonF(feedback)
 
